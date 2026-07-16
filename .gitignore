@@ -1,0 +1,21 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local config / environment
+.env
+venv/
+.venv/
+env/
+
+# Project exports / temporary outputs
+Final_Export/
+dist/
+build/
+*.spec
+
+# IDE configs
+.idea/
+.vscode/
+.gemini/
