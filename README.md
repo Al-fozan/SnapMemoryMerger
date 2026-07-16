@@ -4,6 +4,8 @@ A simple desktop GUI application built in Python to process and merge exported S
 
 When you export memories from Snapchat, overlays (like text, drawings, and stickers) are often saved as separate transparent PNG files alongside their main images or videos. This tool merges these overlays back onto the main files (either images or videos) and saves them in a separate folder, all while preserving the original file metadata (creation, modification, and access times).
 
+![Merge Process](Merge-Process.png)
+
 ![Application Preview](app-preview.png)
 
 ## Features
