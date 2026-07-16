@@ -58,6 +58,7 @@ class SnapMergerApp:
         self.folder_path = tk.StringVar()
         self.output_folder_path = tk.StringVar()
         self.custom_output_enabled = tk.BooleanVar(value=False)
+        self.recursive_scan_enabled = tk.BooleanVar(value=True)
         self.progress_var = tk.DoubleVar()
         self.settings_file = "settings.json"
         self.last_input_dir = "/"
@@ -85,6 +86,7 @@ class SnapMergerApp:
                     settings = json.load(f)
                     self.last_input_dir = settings.get("last_input_dir", "/")
                     self.last_output_dir = settings.get("last_output_dir", "/")
+                    self.recursive_scan_enabled.set(settings.get("recursive_scan_enabled", True))
         except Exception:
             pass
 
@@ -92,7 +94,8 @@ class SnapMergerApp:
         try:
             settings = {
                 "last_input_dir": self.last_input_dir,
-                "last_output_dir": self.last_output_dir
+                "last_output_dir": self.last_output_dir,
+                "recursive_scan_enabled": self.recursive_scan_enabled.get()
             }
             with open(self.settings_file, "w") as f:
                 json.dump(settings, f)
@@ -120,6 +123,17 @@ class SnapMergerApp:
         
         self.browse_btn = ttk.Button(path_frame, text="Browse Folder", command=self.browse_folder)
         self.browse_btn.pack(side=tk.RIGHT)
+
+        # Recursive Checkbox
+        recursive_frame = ttk.Frame(frame)
+        recursive_frame.pack(fill=tk.X, pady=(0, 10))
+        self.recursive_check = ttk.Checkbutton(
+            recursive_frame,
+            text="Scan Subfolders Recursively (Finds memories in all child folders)",
+            variable=self.recursive_scan_enabled,
+            command=self.save_settings
+        )
+        self.recursive_check.pack(side=tk.LEFT)
 
         # Output Folder Selection Frame
         output_option_frame = ttk.Frame(frame)
@@ -237,6 +251,7 @@ class SnapMergerApp:
         self.start_button.config(state=tk.DISABLED)
         self.browse_btn.config(state=tk.DISABLED)
         self.output_check.config(state=tk.DISABLED)
+        self.recursive_check.config(state=tk.DISABLED)
         self.browse_output_btn.config(state=tk.DISABLED)
         self.progress_var.set(0)
         self.status_label.config(text="Scanning directory...")
@@ -269,7 +284,21 @@ class SnapMergerApp:
                 self.log(f"Created output folder: {output_folder}", "success")
 
             # 1. Directory Scanning
-            media_files = [f for f in os.listdir(folder) if f.lower().endswith(('.jpg', '.jpeg', '.mp4'))]
+            media_files = []
+            if self.recursive_scan_enabled.get():
+                for root_dir, dirs, files in os.walk(folder):
+                    # Skip the output folder if it is within the scanned directory
+                    if os.path.abspath(output_folder) == os.path.abspath(root_dir):
+                        continue
+                    if "Final_Export" in dirs:
+                        dirs.remove("Final_Export")
+                        
+                    for f in files:
+                        if f.lower().endswith(('.jpg', '.jpeg', '.mp4')):
+                            media_files.append(os.path.join(root_dir, f))
+            else:
+                media_files = [os.path.join(folder, f) for f in os.listdir(folder) if f.lower().endswith(('.jpg', '.jpeg', '.mp4'))]
+                
             total_files = len(media_files)
             
             if total_files == 0:
@@ -280,10 +309,11 @@ class SnapMergerApp:
             merged_count = 0
             copied_count = 0
 
-            for i, filename in enumerate(media_files):
+            for i, filepath in enumerate(media_files):
                 self.root.after(0, self.update_status, i + 1, total_files)
                 
-                filepath = os.path.join(folder, filename)
+                dir_name = os.path.dirname(filepath)
+                filename = os.path.basename(filepath)
                 name, ext = os.path.splitext(filename)
                 
                 has_overlay = False
@@ -293,7 +323,7 @@ class SnapMergerApp:
                 
                 if is_main:
                     overlay_filename = f"{base_name}-overlay.png"
-                    overlay_path = os.path.join(folder, overlay_filename)
+                    overlay_path = os.path.join(dir_name, overlay_filename)
                     if os.path.exists(overlay_path):
                         has_overlay = True
 
@@ -387,6 +417,7 @@ class SnapMergerApp:
         self.start_button.config(state=tk.NORMAL)
         self.browse_btn.config(state=tk.NORMAL)
         self.output_check.config(state=tk.NORMAL)
+        self.recursive_check.config(state=tk.NORMAL)
         if self.custom_output_enabled.get():
             self.browse_output_btn.config(state=tk.NORMAL)
         self.progress_var.set(100)
