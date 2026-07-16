@@ -2,6 +2,7 @@ import os
 import shutil
 import subprocess
 import threading
+import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from PIL import Image
@@ -58,6 +59,10 @@ class SnapMergerApp:
         self.output_folder_path = tk.StringVar()
         self.custom_output_enabled = tk.BooleanVar(value=False)
         self.progress_var = tk.DoubleVar()
+        self.settings_file = "settings.json"
+        self.last_input_dir = "/"
+        self.last_output_dir = "/"
+        self.load_settings()
 
         # Custom Styling
         self.style = ttk.Style()
@@ -72,6 +77,27 @@ class SnapMergerApp:
         
         # Build GUI
         self._build_ui()
+
+    def load_settings(self):
+        try:
+            if os.path.exists(self.settings_file):
+                with open(self.settings_file, "r") as f:
+                    settings = json.load(f)
+                    self.last_input_dir = settings.get("last_input_dir", "/")
+                    self.last_output_dir = settings.get("last_output_dir", "/")
+        except Exception:
+            pass
+
+    def save_settings(self):
+        try:
+            settings = {
+                "last_input_dir": self.last_input_dir,
+                "last_output_dir": self.last_output_dir
+            }
+            with open(self.settings_file, "w") as f:
+                json.dump(settings, f)
+        except Exception:
+            pass
 
     def _build_ui(self):
         # Main Frame
@@ -183,15 +209,19 @@ class SnapMergerApp:
             self.log("Custom output folder disabled. Using default 'Final_Export' inside input folder.", "info")
 
     def browse_folder(self):
-        folder = filedialog.askdirectory(title="Select Snapchat Memories Folder")
+        folder = filedialog.askdirectory(title="Select Snapchat Memories Folder", initialdir=self.last_input_dir)
         if folder:
             self.folder_path.set(folder)
+            self.last_input_dir = folder
+            self.save_settings()
             self.log(f"Selected input directory: {folder}", "info")
 
     def browse_output_folder(self):
-        folder = filedialog.askdirectory(title="Select Custom Output Folder")
+        folder = filedialog.askdirectory(title="Select Custom Output Folder", initialdir=self.last_output_dir)
         if folder:
             self.output_folder_path.set(folder)
+            self.last_output_dir = folder
+            self.save_settings()
             self.log(f"Selected custom output directory: {folder}", "info")
 
     def start_processing(self):
@@ -310,11 +340,20 @@ class SnapMergerApp:
                             # FFmpeg for Video merging
                             cmd = [
                                 'ffmpeg', '-y', '-i', filepath, '-i', overlay_path,
-                                '-filter_complex', 'overlay', '-c:a', 'copy', out_filepath
+                                '-filter_complex', '[1:v][0:v]scale2ref[ovrl][base];[base][ovrl]overlay=0:0[v]',
+                                '-map', '[v]',
+                                '-map', '0:a?',
+                                '-c:v', 'libx264',
+                                '-pix_fmt', 'yuv420p',
+                                '-c:a', 'copy',
+                                out_filepath
                             ]
                             result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
                             if result.returncode != 0:
-                                raise Exception(result.stderr.strip().split('\n')[-1])
+                                error_msg = result.stderr.strip()
+                                # Only keep the last 5 lines to avoid blowing up the UI logs
+                                last_lines = '\n'.join(error_msg.split('\n')[-5:])
+                                raise Exception(f"FFmpeg Error: {last_lines}")
                             copy_timestamps(filepath, out_filepath)
                             merged_count += 1
                             self.log(f"Successfully merged video: {out_filename}", "success")
