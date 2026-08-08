@@ -77,21 +77,6 @@ python snap_merger.py
 3. **Inject GPS (Optional):** Check the box and select your `memories_history.json` file if you want location data embedded.
 4. Click **Start Processing** and watch the magic happen in the log!
 
----
-
-## 📦 Building Standalone Executable (.exe)
-
-Want to compile the application yourself into a portable `.exe`?
-
-1. Ensure requirements are installed:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Run PyInstaller:
-   ```bash
-   python -m PyInstaller --noconsole --onefile --name SnapMerger snap_merger.py
-   ```
-3. Your compiled application will be generated in the `dist/` folder as `SnapMerger.exe`.
 
 ---
 
