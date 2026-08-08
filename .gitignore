@@ -16,6 +16,8 @@ Final_Export/
 dist/
 build/
 *.spec
+*.exe
+*.zip
 
 # IDE configs
 .idea/

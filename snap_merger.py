@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import subprocess
 import threading
@@ -53,6 +54,27 @@ def extract_iso6709(lat, lon):
     lat_str = f"{lat:08.4f}" if lat < 0 else f"+{lat:07.4f}"
     lon_str = f"{lon:09.4f}" if lon < 0 else f"+{lon:08.4f}"
     return f"{lat_str}{lon_str}/"
+
+def get_ffmpeg_executable():
+    """
+    Locates the ffmpeg executable:
+    1. Check sys._MEIPASS (PyInstaller temp bundle directory)
+    2. Check executable/script directory (same directory as SnapMerger.exe / snap_merger.py)
+    3. Check system PATH via shutil.which
+    """
+    if getattr(sys, 'frozen', False):
+        app_dir = os.path.dirname(sys.executable)
+        meipass_ffmpeg = os.path.join(getattr(sys, '_MEIPASS', ''), 'ffmpeg.exe')
+        if os.path.exists(meipass_ffmpeg):
+            return meipass_ffmpeg
+    else:
+        app_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    local_ffmpeg = os.path.join(app_dir, 'ffmpeg.exe')
+    if os.path.exists(local_ffmpeg):
+        return local_ffmpeg
+        
+    return shutil.which('ffmpeg')
 
 def parse_location_string(loc_str):
     if not loc_str:
@@ -216,7 +238,8 @@ class SnapMergerApp:
         self.json_file_path = tk.StringVar()
         
         self.progress_var = tk.DoubleVar()
-        self.settings_file = "settings.json"
+        base_dir = os.path.dirname(sys.executable) if getattr(sys, 'frozen', False) else os.path.dirname(os.path.abspath(__file__))
+        self.settings_file = os.path.join(base_dir, "settings.json")
         self.last_input_dir = "/"
         self.last_output_dir = "/"
         self.last_json_dir = "/"
@@ -607,9 +630,10 @@ class SnapMergerApp:
                             
                     elif ext.lower() == '.mp4':
                         try:
+                            ffmpeg_exe = get_ffmpeg_executable() or 'ffmpeg'
                             self.log(f"Merging video overlay with FFmpeg: {filename} + {overlay_filename}", "info")
                             cmd = [
-                                'ffmpeg', '-y', '-i', filepath, '-i', overlay_path,
+                                ffmpeg_exe, '-y', '-i', filepath, '-i', overlay_path,
                                 '-filter_complex', '[1:v][0:v]scale2ref[ovrl][base];[base][ovrl]overlay=0:0[v]',
                                 '-map', '[v]',
                                 '-map', '0:a?',
@@ -658,9 +682,10 @@ class SnapMergerApp:
                                     self.log(f"EXIF injection error for {filename}: {e}", "warning")
                                     shutil.copy2(filepath, out_filepath)
                             elif ext.lower() == '.mp4':
+                                ffmpeg_exe = get_ffmpeg_executable() or 'ffmpeg'
                                 iso_loc = extract_iso6709(loc_coords[0], loc_coords[1])
                                 cmd = [
-                                    'ffmpeg', '-y', '-i', filepath,
+                                    ffmpeg_exe, '-y', '-i', filepath,
                                     '-c', 'copy',
                                     '-metadata', f'location={iso_loc}',
                                     out_filepath

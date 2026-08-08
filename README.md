@@ -2,6 +2,12 @@
 
 A desktop GUI application to process, match, and merge exported Snapchat memories (overlays and base files) while preserving creation/modification timestamps and injecting GPS location data.
 
+[![Download Windows Executable](https://img.shields.io/badge/Download-SnapMemoryMerger_v1.0_(Windows)-brightgreen?style=for-the-badge&logo=windows)](https://github.com/Al-fozan/SnapMemoryMerger/releases/latest/download/SnapMemoryMerger-v1.0-Windows.zip)
+
+> **📥 Direct Download (Windows Portable Package):**  
+> **[Download Latest Release (SnapMemoryMerger-v1.0-Windows.zip)](https://github.com/Al-fozan/SnapMemoryMerger/releases/latest/download/SnapMemoryMerger-v1.0-Windows.zip)**  
+> *(No Python or extra installation required - simply extract the ZIP and run `SnapMerger.exe`)*
+
 ![Merge Process](Merge-Process.png)
 ![Application Preview](app-preview.png)
 
@@ -32,3 +38,17 @@ A desktop GUI application to process, match, and merge exported Snapchat memorie
    python snap_merger.py
    ```
 3. Select your input folder, customize options (Output folder & optional GPS JSON location), and click **Start Processing**.
+
+## Building Standalone Executable (.exe)
+
+To build a standalone Windows `.exe` application without needing Python installed at runtime:
+
+1. Install requirements:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Package into a standalone executable:
+   ```bash
+   python -m PyInstaller --noconsole --onefile --name SnapMerger snap_merger.py
+   ```
+3. The compiled application will be created at `dist/SnapMerger.exe`.
