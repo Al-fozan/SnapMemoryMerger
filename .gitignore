@@ -1,25 +1,123 @@
+# ==============================================================================
+# Python
+# ==============================================================================
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-test_ffmpeg.py
 
-# Local config / environment
-.env
-venv/
-.venv/
-env/
-settings.json
+# C extensions
+*.so
 
-# Project exports / temporary outputs
-Final_Export/
-dist/
+# Distribution / packaging
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
 *.spec
 *.exe
 *.zip
 
-# IDE configs
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Tox / nox
+.tox/
+.nox/
+
+# Testing / coverage
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+htmlcov/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Jupyter / IPython
+.ipynb_checkpoints
+*.ipynb
+
+# Docs builds
+docs/_build/
+.sphinx/
+
+# ==============================================================================
+# Project-specific
+# ==============================================================================
+
+# User settings / local config
+settings.json
+.env
+.env.*
+
+# App output
+Final_Export/
+
+# Test helpers kept out of repo
+test_ffmpeg.py
+
+# ==============================================================================
+# OS
+# ==============================================================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ==============================================================================
+# IDE / Editor
+# ==============================================================================
 .idea/
 .vscode/
 .gemini/
+*.swp
+*.swo

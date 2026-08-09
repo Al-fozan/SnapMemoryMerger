@@ -1,0 +1,4 @@
+# Development / build dependencies
+# Install with: pip install -r requirements-dev.txt
+-r requirements.txt
+pyinstaller>=5.0.0

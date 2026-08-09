@@ -11,7 +11,7 @@
 When you export your Snapchat data, memories often come in broken pairs: a base file and a transparent overlay. **SnapMemoryMerger** is a desktop GUI application built in Python that automatically matches and merges these pairs back into single photos and videos. It also restores their original creation/modification timestamps and intelligently injects GPS metadata using your `memories_history.json`.
 
 <p align="center">
-  <img src="Merge-Process.png" alt="Merge Process Example" width="600"/>
+  <img src="assets/Merge-Process.png" alt="Merge Process Example" width="600"/>
 </p>
 
 ---
@@ -26,7 +26,7 @@ When you export your Snapchat data, memories often come in broken pairs: a base 
 - 💻 **Modern GUI:** Clean, dark-mode desktop interface with real-time log tracking and progress bars.
 
 <p align="center">
-  <img src="app-preview.png" alt="Application Preview" width="600"/>
+  <img src="assets/app-preview.png" alt="Application Preview" width="600"/>
 </p>
 
 ---
